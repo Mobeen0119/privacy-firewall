@@ -378,29 +378,6 @@ The demo walks five end-to-end scenarios:
 
 ---
 
-## 7. Team Responsibilities & Boundaries
-
-The interface between the two workstreams is the **decision hash**: a `Bytes32`
-value produced by `midnight_bridge.py` and consumed by
-`policy_attestation.compact`. Neither side needs the other's internals.
-
-| Area | Owner | Scope |
-| --- | --- | --- |
-| Threat model & firewall architecture | **Arya** | dual-firewall design, fail-closed policy model |
-| Inbound interceptor & RBAC | **Arya** | `agent.py`, `policy_engine.py`, `policies/*.yaml` |
-| Data minimization | **Arya** | `data_minimizer.py`, aggregate computation |
-| PII detection & masking | **Arya** | `pii_detector.py` |
-| Canary system | **Arya** | `canary.py`, injection & leak-detection tests |
-| Outbound firewall | **Arya** | `output_firewall.py`, evasion-resistant canary scan |
-| Audit log | **Arya** | `audit.py`, SHA-256 hash chaining, tamper detection |
-| Attack-vector test suite | **Arya** | `test_prompt_injection.py` and all `tests/` |
-| Bridge to contract spec | **Arya** | `midnight_bridge.py` — formats decisions to the contract's `Bytes32` interface |
-| **Midnight Compact contract** | **Midnight teammate** | `policy_attestation.compact` — ledger, circuits, compiler validation |
-| **Zero-knowledge proofs** | **Midnight teammate** | proving circuit replacing HMAC batch signing |
-| **On-chain attestation** | **Midnight teammate** | testnet deployment, `recordAttestation` / `isAttested` calls, verifier UI |
-
----
-
 ## What's Next
 
 - Deploy `policy_attestation.compact` to Midnight testnet; call `recordAttestation`
