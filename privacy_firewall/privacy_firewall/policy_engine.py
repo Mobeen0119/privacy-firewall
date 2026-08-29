@@ -1,6 +1,6 @@
 """Policy engine.
 
-Holds per-agent field permissions and decides, for a given agent and
+Holds per agent field permissions and decides, for a given agent and
 field, whether that field may be read and in what form (full value,
 aggregate only, or not at all).
 
