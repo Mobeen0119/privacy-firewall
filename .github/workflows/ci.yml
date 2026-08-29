@@ -29,8 +29,12 @@ jobs:
 
       - name: Run test suite
         working-directory: privacy_firewall
-        run: pytest -v --tb=short
+        env:
+          PYTHONPATH: .
+        run: python -m pytest -v --tb=short
 
       - name: Run end-to-end demo
         working-directory: privacy_firewall
+        env:
+          PYTHONPATH: .
         run: python demo.py --no-pause --no-color
