@@ -1,0 +1,15 @@
+pragma language_version 0.13;
+
+import CompactStandardLibrary;
+
+export ledger latestHash: Bytes<32>;
+export ledger commitCount: Counter;
+
+export circuit commit(newHash: Bytes<32>): [] {
+  latestHash = newHash;
+  commitCount.increment(1);
+}
+
+export circuit get_latest(): Bytes<32> {
+  return latestHash;
+}
