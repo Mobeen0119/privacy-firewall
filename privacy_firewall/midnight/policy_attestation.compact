@@ -1,0 +1,30 @@
+// STARTING POINT ONLY — adapted from Midnight's official Hello World
+// tutorial pattern (docs.midnight.network/getting-started/hello-world).
+// Verify this against the real compiler before relying on it; do not
+// trust hand-written Compact from any AI assistant, including this one,
+// as ground truth. Use the "Midnight Expert" Claude Code plugin
+// (docs.midnight.network/ai-integration/midnight-expert) to check it
+// against the actual compiler — Midnight's own docs flag that Compact
+// syntax gets hallucinated because it's underrepresented in training data.
+
+pragma language_version 0.23;
+
+// Public, on-chain record: has this exact policy decision been attested?
+// The key is a hash of (agent, field, decision, reason, timestamp) —
+// the same hash our Python AuditLog already computes for each entry.
+// Only the hash goes on-chain. The agent name, field name, salary
+// figures, etc. never appear here.
+export ledger attested: Map<Opaque<"Bytes32">, Boolean>;
+
+// Called once per policy decision. `decisionHash` is private input by
+// default; disclose() marks it safe to store publicly, matching the
+// "only the commitment is public, not the underlying data" pattern
+// from Midnight's own docs.
+export circuit recordAttestation(decisionHash: Opaque<"Bytes32">): [] {
+  attested.insert(disclose(decisionHash), true);
+}
+
+// Read-only check that a specific decision hash was, in fact, recorded.
+export circuit isAttested(decisionHash: Opaque<"Bytes32">): Boolean {
+  return attested.member(disclose(decisionHash));
+}

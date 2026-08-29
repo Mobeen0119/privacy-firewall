@@ -1,0 +1,14 @@
+agent: analytics-agent
+permissions:
+  employee.department:
+    read: allow
+  employee.salary:
+    read: aggregate_only
+  employee.name:
+    read: deny
+  employee.email:
+    read: deny
+  employee.phone:
+    read: deny
+  employee.employee_id:
+    read: deny
