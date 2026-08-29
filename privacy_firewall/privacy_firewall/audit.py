@@ -1,4 +1,4 @@
-"""Tamper-evident audit log for security decisions.
+"""Tamper evident audit log for security decisions.
 
 This is deliberately narrow in scope. It does NOT prove anything about
 what an external LLM provider does with data after it receives it —
@@ -9,8 +9,8 @@ does prove is:
   * and the record has not been altered since,
 
 by chaining each entry's hash into the next one, the same way a
-tamper-evident log or a minimal blockchain does. If the crypto/ZKP
-teammate wants to extend this into a signed or zero-knowledge scheme
+tamper evident log or a minimal blockchain does. If the crypto/ZKP
+teammate wants to extend this into a signed or zero knowledge scheme
 later, this class is the append point.
 """
 
