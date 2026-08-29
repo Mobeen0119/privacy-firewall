@@ -79,6 +79,38 @@ def test_require_raw_succeeds_for_allowed_field(minimizer):
     minimizer.require_raw("analytics-agent", "employee.department")  # should not raise
 
 
+def test_require_raw_raises_for_unmapped_field(minimizer):
+    # Fail-closed: a field with no rule in the policy is not ALLOW.
+    with pytest.raises(PolicyViolation):
+        minimizer.require_raw("analytics-agent", "employee.bonus")
+
+
+def test_require_raw_raises_for_unknown_agent(minimizer):
+    with pytest.raises(PolicyViolation):
+        minimizer.require_raw("ghost-agent", "employee.department")
+
+
+def test_require_raw_audits_the_denied_decision(minimizer):
+    with pytest.raises(PolicyViolation):
+        minimizer.require_raw("analytics-agent", "employee.email")
+    entries = minimizer.audit_log.entries()
+    assert len(entries) == 1
+    assert entries[0].field == "employee.email"
+    assert entries[0].decision.value == "deny"
+
+
+def test_minimize_never_exposes_a_raw_aggregate_only_column(minimizer):
+    result = minimizer.minimize(
+        agent="analytics-agent",
+        records=EMPLOYEES,
+        requested_fields=["employee.salary"],
+    )
+    # No raw column for an AGGREGATE_ONLY field, anywhere in the result.
+    assert "employee.salary" not in result.allowed_fields
+    assert [e["salary"] for e in EMPLOYEES] not in result.allowed_fields.values()
+    assert set(result.aggregates["employee.salary"]) == {"count", "sum", "avg", "min", "max"}
+
+
 def test_every_decision_is_audited(minimizer):
     minimizer.minimize(
         agent="analytics-agent",

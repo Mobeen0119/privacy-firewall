@@ -23,7 +23,6 @@ from typing import Any, Iterable
 
 from .audit import AuditLog
 from .data_minimizer import DataMinimizer
-from .decision import Decision
 from .policy_engine import PolicyEngine
 
 # AuditLogger is the name used elsewhere in the project docs for this class.
@@ -219,17 +218,19 @@ class PrivacyFirewallMiddleware:
         self, agent_id: str, prefix: str, fields: list[str],
         records: list[dict[str, Any]],
     ) -> FirewallResponse:
+        # Single audited enforcement path. The minimizer is the *only*
+        # component that classifies fields and touches `records`; this
+        # method never inspects a raw row itself. A raw read may surface
+        # ALLOW fields only -- AGGREGATE_ONLY and DENY are both refused
+        # here, so a raw read can never silently degrade to a scalar.
+        requested = [self._policy_name(prefix, f) for f in fields]
+        result = self.minimizer.minimize(agent_id, records, requested)
+        allowed_policy = set(result.allowed_fields)
+
         allowed: list[str] = []
         denied: list[str] = []
-
         for f in fields:
-            fd = self.policy_engine.evaluate_field(agent_id, self._policy_name(prefix, f))
-            self.audit_log.record(fd.agent, fd.field, fd.decision, fd.reason)
-            if fd.decision is Decision.ALLOW:
-                allowed.append(f)
-            else:
-                # AGGREGATE_ONLY and DENY both fail a raw read.
-                denied.append(f)
+            (allowed if self._policy_name(prefix, f) in allowed_policy else denied).append(f)
 
         if not allowed:
             return self._denied(
@@ -237,7 +238,12 @@ class PrivacyFirewallMiddleware:
                 "All requested fields are denied for a raw read",
             )
 
-        sanitized_rows = [{f: row.get(f) for f in allowed} for row in records]
+        # Reshape the minimizer's already-released columns into row form.
+        # Only values the minimizer explicitly returned are handled here.
+        columns = {self._short(k): v for k, v in result.allowed_fields.items()}
+        sanitized_rows = [
+            dict(zip(columns.keys(), values)) for values in zip(*columns.values())
+        ]
         return FirewallResponse(
             decision=ALLOW,
             agent_id=agent_id,

@@ -2,7 +2,7 @@
 
 > Privacy-preserving middleware, PII redaction, data minimization, and tamper-evident audit attestation for AI agents.
 
-![Tests](https://img.shields.io/badge/tests-207%2F207%20passing-brightgreen)
+![Tests](https://img.shields.io/badge/tests-214%2F214%20passing-brightgreen)
 ![Data Leaks](https://img.shields.io/badge/data%20leaks-0%2F0-brightgreen)
 ![Midnight](https://img.shields.io/badge/Midnight-attestation%20ready-4c1d95)
 ![Python](https://img.shields.io/badge/python-3.10%2B-blue)
@@ -246,15 +246,15 @@ repeat context verbatim      canary      DENY     BLOCK     BLOCKED
 
 | Suite | Cases | Focus |
 | --- | ---: | --- |
-| `test_agent.py` | 26 | agent isolation, middleware, fail-closed, audit refs |
+| `test_agent.py` | 29 | agent isolation, middleware, fail-closed, audit refs |
 | `test_audit.py` | 4 | hash-chain integrity, tamper detection |
-| `test_data_minimizer.py` | 7 | aggregate math, raw-value suppression |
+| `test_data_minimizer.py` | 11 | aggregate math, raw-value suppression |
 | `test_midnight_bridge.py` | 32 | hash determinism, Compact schema, signed batch export |
 | `test_output_firewall.py` | 34 | canary evasion, PII scan, authorization |
 | `test_pii_detector.py` | 35 | entity detection, masking, false-positive edges |
 | `test_policy_engine.py` | 7 | RBAC, YAML loading, fail-closed |
 | `test_prompt_injection.py` | 62 | direct / indirect injection, escalation, exfiltration, full-pipeline battery |
-| **Total** | **207** | **0 failures, 0 errors, 0 warnings** |
+| **Total** | **214** | **0 failures, 0 errors, 0 warnings** |
 
 ---
 
@@ -287,7 +287,7 @@ AI-Privacy-Firewall/
     ├── midnight/
     │   └── policy_attestation.compact     Compact contract: attested map + recordAttestation / isAttested
     │
-    └── tests/                             207 cases, 100% passing
+    └── tests/                             214 cases, 100% passing
         ├── test_agent.py
         ├── test_audit.py
         ├── test_data_minimizer.py
@@ -349,7 +349,7 @@ pytest -v --tb=short
 Expected result:
 
 ```
-====== 207 passed in ~0.2s ======
+====== 214 passed in ~0.2s ======
 ```
 
 Zero failures, zero errors, zero warnings.

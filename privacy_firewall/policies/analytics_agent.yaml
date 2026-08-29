@@ -12,3 +12,5 @@ permissions:
     read: deny
   employee.employee_id:
     read: deny
+  employee.notes:
+    read: deny

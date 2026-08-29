@@ -140,9 +140,44 @@ def test_read_of_aggregate_only_field_is_denied_for_raw(agent):
 
 
 def test_uncovered_field_fails_closed(agent):
+    # 'bonus' has no rule of any kind in analytics_agent.yaml.
+    resp = agent.request_read(["bonus"])
+    assert resp.decision == DENY
+    assert resp.denied_fields == ["bonus"]
+    assert resp.payload is None
+
+
+def test_notes_field_is_explicitly_denied(agent):
+    # 'notes' now has an explicit `read: deny` rule (schema alignment).
     resp = agent.request_read(["notes"])
     assert resp.decision == DENY
     assert resp.denied_fields == ["notes"]
+
+
+def test_read_payload_exposes_only_allowed_field_values(agent):
+    # Request every column; only the single ALLOW field may come back,
+    # and no raw non-allowed value or canary may appear anywhere.
+    resp = agent.request_read(list(MockEmployeeDB.FIELDS))
+    assert resp.is_allowed
+    assert resp.payload["returned_fields"] == ["department"]
+    for row in resp.payload["records"]:
+        assert set(row) == {"department"}
+    blob = repr(resp)
+    for leak in ("@company.com", "Alice Johnson", "555-01", "90000", "CANARY-SECRET-"):
+        assert leak not in blob
+
+
+def test_read_path_routes_through_the_minimizer(middleware, agent):
+    calls = []
+    real = middleware.minimizer.minimize
+
+    def spy(*args, **kwargs):
+        calls.append((args, kwargs))
+        return real(*args, **kwargs)
+
+    middleware.minimizer.minimize = spy
+    agent.request_read(["department", "name"])
+    assert len(calls) == 1  # the read path delegates classification to minimize()
 
 
 # -- no leakage --------------------------------------------------
