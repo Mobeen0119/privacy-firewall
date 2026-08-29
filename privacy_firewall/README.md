@@ -8,7 +8,7 @@ components in the project design doc.
 
 ## What it does
 
-1. **Policy Engine** (`policy_engine.py`) — loads per-agent field
+1. **Policy Engine** (`policy_engine.py`) — loads per agent field
    permissions from YAML and answers "can agent X read field Y, and
    in what form?" for every field in a request. Unknown agents and
    unknown fields both resolve to `DENY` — the engine fails closed by
@@ -33,8 +33,8 @@ components in the project design doc.
 ```bash
 pip install -r requirements.txt
 python demo.py          # runs Demo 1, 2, and 5 from the main README
-python -m pytest -v     # 18 tests, covering fail-closed behavior,
-                         # aggregation, denial, and audit tamper-detection
+python -m pytest -v     # 18 tests, covering fail closed behavior,
+                         # aggregation, denial, and audit tamper detection
 ```
 
 ## Example policy
@@ -56,10 +56,10 @@ permissions:
 
 ## What this deliberately does NOT do
 
-- It does not detect PII automatically — it assumes fields have
+- It does not detect PII automatically, it assumes fields have
   already been named and classified in the policy file. That's the
   separate PII Detection component.
 - It does not make any claim about what an LLM provider does with
   data after this layer hands it over. The audit log proves a
-  decision was made and hasn't been tampered with after the fact — it
-  does not prove what happened inside a third-party model.
+  decision was made and hasn't been tampered with after the fact,  it
+  does not prove what happened inside a third party model.
