@@ -1,10 +1,10 @@
 # AegisMidnight — AI Privacy Firewall + Midnight Attestation
 
-A security layer that sits between an AI agent and sensitive data. It decides what an agent can see, catches anything sensitive trying to leak back out, and commits a tamper-evident, cryptographically signed record of every decision — designed to be attested on Midnight.
+A security layer that sits between an AI agent and sensitive data. It decides what an agent can see, catches anything sensitive trying to leak back out, and commits a tamper evident, cryptographically signed record of every decision — designed to be attested on Midnight.
 
 ## The problem
 
-AI agents are increasingly given access to real company data. A naive integration hands an agent everything and hopes the model behaves. AegisMidnight enforces field-level policy before data reaches an agent, inspects everything the agent tries to say before it reaches a user, and produces a cryptographic paper trail of every decision.
+AI agents are increasingly given access to real company data. A naive integration hands an agent everything and hopes the model behaves. AegisMidnight enforces field level policy before data reaches an agent, inspects everything the agent tries to say before it reaches a user, and produces a cryptographic paper trail of every decision.
 
 ## Architecture
 
