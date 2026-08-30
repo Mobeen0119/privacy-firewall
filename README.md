@@ -16,4 +16,4 @@ cd privacy_firewall && pip install -r requirements.txt && python -m pytest -v &&
 
 ## Known issues, documented honestly
 
-Midnight live deployment is blocked by a confirmed upstream SDK bug in compact-js (isolated via debug logging, ruled out across versions) and separately by testnet faucet limits (163/25,000 tDUST, 152-hour refill). The attestation layer itself is fully built and tested. A security audit also flagged that deploy scripts generate a random signing key per deploy; remediation identified, not implemented due to time.
+Midnight live deployment is blocked by a confirmed upstream SDK bug in compact-js (isolated via debug logging, ruled out across versions) and separately by testnet faucet limits (163/25,000 tDUST, 152 hour refill). The attestation layer itself is fully built and tested. A security audit also flagged that deploy scripts generate a random signing key per deploy; remediation identified, not implemented due to time.
