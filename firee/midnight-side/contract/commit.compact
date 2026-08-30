@@ -1,0 +1,17 @@
+pragma language_version 0.26.0;
+
+import CompactStandardLibrary;
+
+export ledger latestHash: Bytes<32>;
+export ledger commitCount: Counter;
+
+export circuit commit(newHash: Bytes<32>): [] {
+  // Use 'const' without the explicit type annotation ':'
+  const public_key = disclose(newHash);
+  latestHash = public_key;
+  commitCount.increment(1);
+}
+
+export circuit get_latest(): Bytes<32> {
+  return latestHash;
+}
