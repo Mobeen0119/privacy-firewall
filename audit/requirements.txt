@@ -1,0 +1,4 @@
+# Runtime dependencies for the audit signing layer (audit finding M-15).
+# Requires Python >= 3.9 (enforced at import in sign.py / hash_chain.py).
+# Pinned exact; bump deliberately after checking the changelog / advisories.
+cryptography==46.0.7

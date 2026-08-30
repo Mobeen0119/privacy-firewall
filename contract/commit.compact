@@ -1,0 +1,97 @@
+pragma language_version 0.26.0;
+
+import CompactStandardLibrary;
+
+// ---------------------------------------------------------------------------
+// Ledger state
+// ---------------------------------------------------------------------------
+
+// Immutable owner identity, fixed at deploy time: the domain-separated
+// hash of the owner's secret authority key (see `ownerPublicKey`). The
+// secret itself is never stored on-chain and never disclosed.
+export ledger owner: Bytes<32>;
+
+// Append-only accumulator that cryptographically links every accepted
+// commit (audit finding H-4):
+//
+//   latestHash_0     = 0x00..00
+//   latestHash_{n+1} = SHA256( latestHash_n || epoch_n || newHash_n )
+//
+// Any reorder, insertion, or dropped commit changes the accumulator, so
+// an off-chain auditor can replay the exact authorized sequence.
+export ledger latestHash: Bytes<32>;
+
+// Most recent raw committed root hash - what `get_latest` returns. The
+// linked history lives in `latestHash`; this is the plain last value.
+export ledger lastRoot: Bytes<32>;
+
+// Strictly monotonic commit sequence number. A `Counter` can only ever
+// advance, and `commit` additionally asserts the caller targets the
+// current value exactly (no gaps, no reuse).
+export ledger commitCount: Counter;
+
+// ---------------------------------------------------------------------------
+// Owner identity derivation
+// ---------------------------------------------------------------------------
+
+// Domain-separated public owner identity derived from the secret
+// authority key. Pure (no ledger access) so deployment tooling can call
+// it off-chain via `pureCircuits.ownerPublicKey(secret)` and get a value
+// byte-identical to the on-chain check.
+export circuit ownerPublicKey(ownerSk: Bytes<32>): Bytes<32> {
+  return persistentHash<Vector<2, Bytes<32>>>(
+    [pad(32, "midnight-side:audit-owner:v1"), ownerSk]);
+}
+
+// ---------------------------------------------------------------------------
+// Constructor
+// ---------------------------------------------------------------------------
+
+constructor(ownerPk: Bytes<32>) {
+  owner = disclose(ownerPk);
+}
+
+// ---------------------------------------------------------------------------
+// Circuits
+// ---------------------------------------------------------------------------
+
+// Notarize a new audit-log root hash.
+//
+// `ownerSk` and `expectedEpoch` are private circuit inputs, proven in
+// zero knowledge, never written to the ledger. FAILS CLOSED: if either
+// the owner check or the epoch check fails the transaction aborts with no
+// state change.
+export circuit commit(
+  newHash: Bytes<32>,
+  ownerSk: Bytes<32>,
+  expectedEpoch: Uint<64>
+): [] {
+  // (1) Access control - knowledge-of-owner-secret proof.
+  assert(owner == ownerPublicKey(ownerSk),
+    "commit: unauthorized - caller does not hold the owner key");
+
+  // (2) Strict monotonic epoch - the commit must target the current
+  //     sequence position exactly. Rejects stale / replayed / out-of-order
+  //     commits; combined with the Counter (which only advances) this
+  //     makes gaps and reuse impossible.
+  assert((expectedEpoch as Field) == (commitCount as Field),
+    "commit: epoch mismatch - stale or out-of-order commit");
+
+  // (3) Reject degenerate / replayed roots (audit finding L-2).
+  //     `pad(32, "")` is the 32-byte all-zero value.
+  assert(newHash != pad(32, ""),
+    "commit: newHash must not be all-zero");
+  assert(newHash != lastRoot,
+    "commit: newHash duplicates the current lastRoot");
+
+  // (4) Append-only accumulator: latestHash <- SHA256(latestHash || epoch || newHash).
+  latestHash = disclose(persistentHash<Vector<3, Bytes<32>>>(
+    [latestHash, commitCount as Field as Bytes<32>, newHash]));
+  lastRoot = disclose(newHash);
+  commitCount.increment(1);
+}
+
+// Read back the most recent committed root hash. Public -> public.
+export circuit get_latest(): Bytes<32> {
+  return lastRoot;
+}

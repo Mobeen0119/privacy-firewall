@@ -1,0 +1,4 @@
+# Dev/test dependencies (audit finding M-16). Install with:
+#   pip install -r audit/requirements-dev.txt
+-r requirements.txt
+pytest==8.3.4

@@ -1,0 +1,21 @@
+# Dependencies / build output
+node_modules/
+build/
+__pycache__/
+.pytest_cache/
+
+# Local private state (LevelDB store from levelPrivateStateProvider)
+private-state/
+
+# Secrets - never commit
+seed.txt
+*.pem
+audit/firewall_owner_secret.key
+
+# Local deploy state (written 0600; still not for version control)
+deployment.json
+*.tmp-*
+
+# Generated audit artifacts
+audit/*.jsonl
+audit/root_hash.txt
